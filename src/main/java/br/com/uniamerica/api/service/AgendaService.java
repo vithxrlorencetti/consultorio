@@ -64,9 +64,14 @@ public class AgendaService {
         }
     }
 
+    @Transactional
     public void updateStatusAgenda(Agenda agenda, StatusAgenda statusAgenda){
         agenda.setStatus(statusAgenda);
         agendaRepository.save(agenda);
+    }
+
+    public void validaDisponibilidade(){
+
     }
 
 }
