@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -40,8 +41,14 @@ public class AgendaService {
         }
     }
 
+    public void updateStatusAgendaRejeitado(Agenda agenda) {
+        if(agenda.getStatus().equals(StatusAgenda.pendente)){
+            updateStatusAgenda(agenda, StatusAgenda.rejeitado);
+        }
+    }
+
     public void updateStatusAgendaCancelado(Agenda agenda) {
-        if(agenda.getStatus().equals(StatusAgenda.aprovado)){
+        if((agenda.getStatus().equals(StatusAgenda.aprovado)) || (agenda.getStatus().equals(StatusAgenda.pendente))){
             updateStatusAgenda(agenda, StatusAgenda.cancelado);
         }
     }
@@ -58,11 +65,7 @@ public class AgendaService {
         }
     }
 
-    public void updateStatusAgendaRejeitado(Agenda agenda) {
-        if(agenda.getStatus().equals(StatusAgenda.pendente)){
-            updateStatusAgenda(agenda, StatusAgenda.rejeitado);
-        }
-    }
+
 
     @Transactional
     public void updateStatusAgenda(Agenda agenda, StatusAgenda statusAgenda){
@@ -73,5 +76,19 @@ public class AgendaService {
     public void validaDisponibilidade(){
 
     }
+
+    public void validaData(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte){
+        if(((localDateTimeDe.compareTo(LocalDateTime.now())) && (localDateTimeAte.compareTo(LocalDateTime.now()))) <= 0) {
+            throw new RuntimeException("Data informada menor que a atual");
+        }
+    }
+
+    public void validaEncaixe(Agenda agenda){
+        if(agenda.getEncaixe() == false) {
+            validaDisponibilidade();
+        }
+    }
+
+
 
 }

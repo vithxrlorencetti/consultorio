@@ -23,6 +23,6 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
 
     @Query("SELECT Agenda agenda " +
             "WHERE agenda.dataDe >= :dataDe AND agenda.dataAte <= :dataAte")
-    public void validarDisponibilidade(@Param("dataDe"), @Param("dataAte"))
+    public void validarDisponibilidade(@Param("dataDe"), @Param("dataAte") Long idAgenda);
 
 }

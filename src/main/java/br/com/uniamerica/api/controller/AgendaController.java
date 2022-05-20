@@ -26,20 +26,11 @@ public class AgendaController {
     @Autowired
     public AgendaRepository agendaRepository;
 
-    /**
-     *
-     * @return
-     */
     @GetMapping
     public ResponseEntity<List<Agenda>> listAllAgendas(){
         return new ResponseEntity<>(agendaRepository.findAll(), HttpStatus.OK) ;
     }
 
-    /**
-     *
-     * @param agenda
-     * @return
-     */
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody List<Agenda> agenda){
         agendaRepository.saveAll(agenda);
