@@ -1,6 +1,7 @@
 package br.com.uniamerica.api.service;
 
 import br.com.uniamerica.api.entity.Agenda;
+import br.com.uniamerica.api.entity.Secretaria;
 import br.com.uniamerica.api.entity.StatusAgenda;
 import br.com.uniamerica.api.repository.AgendaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -26,10 +28,101 @@ public class AgendaService {
         return this.agendaRepository.findAll(pageable);
     }
 
+    public boolean isDataMenorQueAtual(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte){
+        return  localDateTimeDe.compareTo(LocalDateTime.now()) <= 0
+                &&
+                localDateTimeAte.compareTo(LocalDateTime.now()) <= 0;
+    }
+
+    public boolean isDataAteMaiorQueDataDe(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte){
+        return localDateTimeAte.compareTo(localDateTimeDe) >= 0;
+    }
+
+    public boolean isOutHorarioDeAtendimento(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte){
+        return  localDateTimeDe.getHour() < 8 || localDateTimeDe.getHour() > 11
+                &&
+                localDateTimeAte.getHour() < 9 || localDateTimeAte.getHour() > 12
+                ||
+                localDateTimeDe.getHour() < 14 || localDateTimeDe.getHour() > 17
+                &&
+                localDateTimeAte.getHour() < 15 || localDateTimeAte.getHour() > 18;
+    }
+
+    public boolean isFimDeSemana(LocalDateTime localDateTimeDe){
+        return  localDateTimeDe.getDayOfWeek() != DayOfWeek.SATURDAY
+                &&
+                localDateTimeDe.getDayOfWeek() != DayOfWeek.SUNDAY;
+    }
+
+    public boolean isDataDisponivel(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte){
+        return agendaRepository.isDataDisponivel(localDateTimeDe, localDateTimeAte);
+    }
+
+    public boolean isEncaixe(Agenda agenda){
+        if(agenda.getEncaixe() == true) return true;
+        else return false;
+    }
+
+    public void cadastrarAgendaSecretaria(Agenda agenda, Secretaria secretaria){
+        if(isEncaixe(agenda) == true){
+
+            if(secretaria != null &&
+               isDataMenorQueAtual(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isDataAteMaiorQueDataDe(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isOutHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isFimDeSemana(agenda.getDataDe()) == false) {
+
+                    agenda.setStatus(StatusAgenda.aprovado);
+                    agendaRepository.save(agenda);
+
+            } else {
+                throw new RuntimeException("Condições básicas não atendidas, verifique os dados.");
+            }
+
+        } else if (isEncaixe(agenda) == false) {
+
+            if(secretaria != null &&
+               isDataMenorQueAtual(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isDataAteMaiorQueDataDe(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isOutHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isFimDeSemana(agenda.getDataDe()) == false &&
+               isDataDisponivel(agenda.getDataDe(), agenda.getDataAte()) == true) {
+
+                    agenda.setStatus(StatusAgenda.aprovado);
+                    agendaRepository.save(agenda);
+
+            } else {
+                throw new RuntimeException("Condições básicas não atendidas, verifique os dados.");
+            }
+        }
+    }
+
+    public void cadastrarAgendaPaciente(Agenda agenda, Secretaria secretaria){
+        if(isEncaixe(agenda) == false){
+
+            if(secretaria == null &&
+               isDataMenorQueAtual(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isDataAteMaiorQueDataDe(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isOutHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isFimDeSemana(agenda.getDataDe()) == false &&
+               isDataDisponivel(agenda.getDataDe(), agenda.getDataAte()) == true) {
+
+                agenda.setStatus(StatusAgenda.pendente);
+                agendaRepository.save(agenda);
+
+            } else {
+                throw new RuntimeException("Condições básicas não atendidas, verifique os dados.");
+            }
+
+        } else if (isEncaixe(agenda) == true) {
+            throw new RuntimeException("Você não tem permissão para realizar um encaixe.");
+        }
+    }
+
     @Transactional
-    public void updateStatus(Long id, Agenda agenda) {
+    public void updateStatusRemovido(Long id, Agenda agenda) {
         if (id == agenda.getId()) {
-            this.agendaRepository.updateStatus(agenda.getId());
+            this.agendaRepository.updateStatusRemovido(agenda.getId());
         } else {
             throw new RuntimeException();
         }
@@ -65,30 +158,10 @@ public class AgendaService {
         }
     }
 
-
-
     @Transactional
     public void updateStatusAgenda(Agenda agenda, StatusAgenda statusAgenda){
         agenda.setStatus(statusAgenda);
         agendaRepository.save(agenda);
     }
-
-    public void validaDisponibilidade(){
-
-    }
-
-    public void validaData(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte){
-        if(((localDateTimeDe.compareTo(LocalDateTime.now())) && (localDateTimeAte.compareTo(LocalDateTime.now()))) <= 0) {
-            throw new RuntimeException("Data informada menor que a atual");
-        }
-    }
-
-    public void validaEncaixe(Agenda agenda){
-        if(agenda.getEncaixe() == false) {
-            validaDisponibilidade();
-        }
-    }
-
-
 
 }

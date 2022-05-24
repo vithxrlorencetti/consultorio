@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 /**
  * @author Eduardo Sganderla
  *
@@ -19,10 +21,10 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
     @Query("UPDATE Agenda agenda " +
             "SET agenda.excluido = now() " +
             "WHERE agenda.id = :agenda")
-    public void updateStatus(@Param("agenda") Long idAgenda);
+    public void updateStatusRemovido(@Param("agenda") Long idAgenda);
 
     @Query("SELECT Agenda agenda " +
             "WHERE agenda.dataDe >= :dataDe AND agenda.dataAte <= :dataAte")
-    public void validarDisponibilidade(@Param("dataDe"), @Param("dataAte") Long idAgenda);
+    public boolean isDataDisponivel(@Param("dataDe") LocalDateTime dataDe, @Param("dataAte") LocalDateTime dataAte);
 
 }
