@@ -1,6 +1,8 @@
 package br.com.uniamerica.api.repository;
 
 import br.com.uniamerica.api.entity.Agenda;
+import br.com.uniamerica.api.entity.Medico;
+import br.com.uniamerica.api.entity.Paciente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,8 +25,18 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
             "WHERE agenda.id = :agenda")
     public void updateStatusRemovido(@Param("agenda") Long idAgenda);
 
-    @Query("SELECT Agenda agenda " +
-            "WHERE agenda.dataDe >= :dataDe AND agenda.dataAte <= :dataAte")
-    public boolean isDataDisponivel(@Param("dataDe") LocalDateTime dataDe, @Param("dataAte") LocalDateTime dataAte);
+    @Query("FROM Agenda agenda " +
+            "WHERE (" +
+            "   :dataDe BETWEEN agenda.dataDe AND agenda.dataAte " +
+            "   OR " +
+            "   :dataAte BETWEEN agenda.dataDe AND agenda.dataAte" +
+            ") " +
+            "AND (:medico = agenda.medico OR :paciente = agenda.paciente)" +
+            "AND :agenda <> agenda")
+    public boolean isDataDisponivel(@Param("dataDe") LocalDateTime dataDe,
+                                    @Param("dataAte") LocalDateTime dataAte,
+                                    @Param("medico") Medico medico,
+                                    @Param("dataAte") Paciente paciente,
+                                    @Param("idAgenda") Long idAgenda);
 
 }

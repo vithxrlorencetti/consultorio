@@ -1,8 +1,6 @@
 package br.com.uniamerica.api.service;
 
-import br.com.uniamerica.api.entity.Agenda;
-import br.com.uniamerica.api.entity.Secretaria;
-import br.com.uniamerica.api.entity.StatusAgenda;
+import br.com.uniamerica.api.entity.*;
 import br.com.uniamerica.api.repository.AgendaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,14 +36,14 @@ public class AgendaService {
         return localDateTimeAte.compareTo(localDateTimeDe) >= 0;
     }
 
-    public boolean isOutHorarioDeAtendimento(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte){
-        return  localDateTimeDe.getHour() < 8 || localDateTimeDe.getHour() > 11
+    public boolean isOnHorarioDeAtendimento(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte){
+        return  localDateTimeDe.getHour() >= 8 && localDateTimeDe.getHour() <= 11
                 &&
-                localDateTimeAte.getHour() < 9 || localDateTimeAte.getHour() > 12
+                localDateTimeAte.getHour() >= 9 || localDateTimeAte.getHour() <= 12
                 ||
-                localDateTimeDe.getHour() < 14 || localDateTimeDe.getHour() > 17
+                localDateTimeDe.getHour() >= 14 || localDateTimeDe.getHour() <= 17
                 &&
-                localDateTimeAte.getHour() < 15 || localDateTimeAte.getHour() > 18;
+                localDateTimeAte.getHour() >= 15 || localDateTimeAte.getHour() <= 18;
     }
 
     public boolean isFimDeSemana(LocalDateTime localDateTimeDe){
@@ -54,8 +52,8 @@ public class AgendaService {
                 localDateTimeDe.getDayOfWeek() != DayOfWeek.SUNDAY;
     }
 
-    public boolean isDataDisponivel(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte){
-        return agendaRepository.isDataDisponivel(localDateTimeDe, localDateTimeAte);
+    public boolean isDataDisponivel(LocalDateTime localDateTimeDe, LocalDateTime localDateTimeAte, Medico medico, Paciente paciente, Long idAgenda){
+        return agendaRepository.isDataDisponivel(localDateTimeDe, localDateTimeAte, medico, paciente, idAgenda);
     }
 
     public boolean isEncaixe(Agenda agenda){
@@ -69,7 +67,7 @@ public class AgendaService {
             if(secretaria != null &&
                isDataMenorQueAtual(agenda.getDataDe(), agenda.getDataAte()) == false &&
                isDataAteMaiorQueDataDe(agenda.getDataDe(), agenda.getDataAte()) == false &&
-               isOutHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isOnHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == true &&
                isFimDeSemana(agenda.getDataDe()) == false) {
 
                     agenda.setStatus(StatusAgenda.aprovado);
@@ -84,7 +82,7 @@ public class AgendaService {
             if(secretaria != null &&
                isDataMenorQueAtual(agenda.getDataDe(), agenda.getDataAte()) == false &&
                isDataAteMaiorQueDataDe(agenda.getDataDe(), agenda.getDataAte()) == false &&
-               isOutHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isOnHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == true &&
                isFimDeSemana(agenda.getDataDe()) == false &&
                isDataDisponivel(agenda.getDataDe(), agenda.getDataAte()) == true) {
 
@@ -103,7 +101,7 @@ public class AgendaService {
             if(secretaria == null &&
                isDataMenorQueAtual(agenda.getDataDe(), agenda.getDataAte()) == false &&
                isDataAteMaiorQueDataDe(agenda.getDataDe(), agenda.getDataAte()) == false &&
-               isOutHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == false &&
+               isOnHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == true &&
                isFimDeSemana(agenda.getDataDe()) == false &&
                isDataDisponivel(agenda.getDataDe(), agenda.getDataAte()) == true) {
 
@@ -128,33 +126,39 @@ public class AgendaService {
         }
     }
 
-    public void updateStatusAgendaAprovado(Agenda agenda) {
-        if(agenda.getStatus().equals(StatusAgenda.pendente)){
+    public void updateStatusAgendaAprovado(Agenda agenda, Secretaria secretaria) {
+        if(agenda.getStatus().equals(StatusAgenda.pendente) && secretaria != null){
             updateStatusAgenda(agenda, StatusAgenda.aprovado);
         }
     }
 
-    public void updateStatusAgendaRejeitado(Agenda agenda) {
-        if(agenda.getStatus().equals(StatusAgenda.pendente)){
+    public void updateStatusAgendaRejeitado(Agenda agenda, Secretaria secretaria) {
+        if(agenda.getStatus().equals(StatusAgenda.pendente) && secretaria != null){
             updateStatusAgenda(agenda, StatusAgenda.rejeitado);
         }
     }
 
-    public void updateStatusAgendaCancelado(Agenda agenda) {
-        if((agenda.getStatus().equals(StatusAgenda.aprovado)) || (agenda.getStatus().equals(StatusAgenda.pendente))){
-            updateStatusAgenda(agenda, StatusAgenda.cancelado);
+    public void updateStatusAgendaCancelado(Agenda agenda, Secretaria secretaria) {
+        if((agenda.getStatus().equals(StatusAgenda.aprovado)) || (agenda.getStatus().equals(StatusAgenda.pendente))
+            &&
+            secretaria != null || agenda.getPaciente() != null){
+                updateStatusAgenda(agenda, StatusAgenda.cancelado);
         }
     }
 
-    public void updateStatusAgendaCompareceu(Agenda agenda) {
-        if(agenda.getStatus().equals(StatusAgenda.aprovado)){
-            updateStatusAgenda(agenda, StatusAgenda.compareceu);
+    public void updateStatusAgendaCompareceu(Agenda agenda, Secretaria secretaria) {
+        if(agenda.getStatus().equals(StatusAgenda.aprovado) &&
+           secretaria != null &&
+           isDataMenorQueAtual(agenda.getDataDe(), agenda.getDataAte()) == false){
+                updateStatusAgenda(agenda, StatusAgenda.compareceu);
         }
     }
 
-    public void updateStatusAgendaNaoCompareceu(Agenda agenda) {
-        if(agenda.getStatus().equals(StatusAgenda.aprovado)){
-            updateStatusAgenda(agenda, StatusAgenda.nao_compareceu);
+    public void updateStatusAgendaNaoCompareceu(Agenda agenda, Secretaria secretaria) {
+        if(agenda.getStatus().equals(StatusAgenda.aprovado) &&
+           secretaria != null &&
+           isDataMenorQueAtual(agenda.getDataDe(), agenda.getDataAte()) == false){
+                updateStatusAgenda(agenda, StatusAgenda.nao_compareceu);
         }
     }
 
