@@ -84,7 +84,7 @@ public class AgendaService {
                isDataAteMaiorQueDataDe(agenda.getDataDe(), agenda.getDataAte()) == false &&
                isOnHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == true &&
                isFimDeSemana(agenda.getDataDe()) == false &&
-               isDataDisponivel(agenda.getDataDe(), agenda.getDataAte()) == true) {
+               isDataDisponivel(agenda.getDataDe(), agenda.getDataAte(), agenda.getMedico(), agenda.getPaciente(), agenda.getId()) == true) {
 
                     agenda.setStatus(StatusAgenda.aprovado);
                     agendaRepository.save(agenda);
@@ -103,7 +103,7 @@ public class AgendaService {
                isDataAteMaiorQueDataDe(agenda.getDataDe(), agenda.getDataAte()) == false &&
                isOnHorarioDeAtendimento(agenda.getDataDe(), agenda.getDataAte()) == true &&
                isFimDeSemana(agenda.getDataDe()) == false &&
-               isDataDisponivel(agenda.getDataDe(), agenda.getDataAte()) == true) {
+               isDataDisponivel(agenda.getDataDe(), agenda.getDataAte(), agenda.getMedico(), agenda.getPaciente(), agenda.getId()) == true) {
 
                 agenda.setStatus(StatusAgenda.pendente);
                 agendaRepository.save(agenda);
