@@ -15,12 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * @author Eduardo Sganderla
- *
- * @since 1.0.0, 07/04/2022
- * @version 1.0.0
- */
 @Controller
 @RequestMapping("/api/especialidades")
 public class EspecialidadeController {
@@ -35,7 +29,7 @@ public class EspecialidadeController {
     public ResponseEntity<Especialidade> findById(
             @PathVariable("idEspecialidade") Long idEspecialidade
     ){
-        return ResponseEntity.ok().body(this.especialidadeService.findById(idEspecialidade).get());
+        return ResponseEntity.ok().body(this.especialidadeService.findById(idEspecialidade));
     }
 
     @GetMapping
@@ -71,12 +65,12 @@ public class EspecialidadeController {
     }
 
     @PutMapping("/status/{idEspecialidade}")
-    public ResponseEntity<?> updateStatus(
+    public ResponseEntity<?> desativar(
             @RequestBody Especialidade especialidade,
             @PathVariable Long idEspecialidade
     ){
         try {
-            this.especialidadeService.updateStatus(idEspecialidade, especialidade);
+            this.especialidadeService.desativar(idEspecialidade, especialidade);
             return ResponseEntity.ok().body("Especialidade Desativada com Sucesso.");
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

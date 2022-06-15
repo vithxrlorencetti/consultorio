@@ -18,22 +18,12 @@ public class EspecialidadeService {
     @Autowired
     private EspecialidadeRepository especialidadeRepository;
 
-    public Optional<Especialidade> findById(Long id){
-        return this.especialidadeRepository.findById(id);
+    public Especialidade findById(Long id){
+        return this.especialidadeRepository.findById(id).orElse(new Especialidade());
     }
 
     public Page<Especialidade> listAll(Pageable pageable){
         return this.especialidadeRepository.findAll(pageable);
-    }
-
-    @Transactional
-    public void update(Long id, Especialidade especialidade){
-        if (id == especialidade.getId()) {
-            this.especialidadeRepository.save(especialidade);
-        }
-        else {
-            throw new RuntimeException();
-        }
     }
 
     @Transactional
@@ -42,12 +32,22 @@ public class EspecialidadeService {
     }
 
     @Transactional
-    public void updateStatus(Long id, Especialidade especialidade){
+    public void update(Long id, Especialidade especialidade){
         if (id == especialidade.getId()) {
-            this.especialidadeRepository.updateStatus(especialidade.getId());
+            this.especialidadeRepository.save(especialidade);
         }
         else {
-            throw new RuntimeException();
+            throw new RuntimeException("Error: Não foi possivel editar a Secretaria, valores inconsistentes.");
+        }
+    }
+
+    @Transactional
+    public void desativar(Long id, Especialidade especialidade){
+        if (id == especialidade.getId()) {
+            this.especialidadeRepository.desativar(especialidade.getId());
+        }
+        else {
+            throw new RuntimeException("Error: Não foi possivel editar a Secretaria, valores inconsistentes.");
         }
     }
 }

@@ -18,16 +18,10 @@ import java.util.List;
 @Repository
 public interface MedicoRepository extends JpaRepository<Medico, Long> {
 
-    /**
-     * @see Medico#Medico(Long, String, String)
-     */
-    @Query("SELECT new Medico(medico.id, medico.nome, medico.crm) FROM Medico medico")
-    public List<Medico> listTable();
-
     @Modifying
     @Query("UPDATE Medico medico " +
-            "SET medico.excluido = now() " +
+            "SET medico.ativo = false " +
             "WHERE medico.id = :medico")
-    public void updateStatus(@Param("medico") Long idMedico);
+    public void desativar(@Param("medico") Long idMedico);
 
 }

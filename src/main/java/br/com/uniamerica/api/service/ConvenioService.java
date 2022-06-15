@@ -16,14 +16,17 @@ public class ConvenioService {
     @Autowired
     private ConvenioRepository convenioRepository;
 
-
-    public Optional<Convenio> findById(Long id){
-        return this.convenioRepository.findById(id);
+    public Convenio findById(Long id){
+        return this.convenioRepository.findById(id).orElse(new Convenio());
     }
-
 
     public Page<Convenio> listAll(Pageable pageable){
         return this.convenioRepository.findAll(pageable);
+    }
+
+    @Transactional
+    public void insert(Convenio convenio){
+        this.convenioRepository.save(convenio);
     }
 
     @Transactional
@@ -36,14 +39,9 @@ public class ConvenioService {
     }
 
     @Transactional
-    public void insert(Convenio convenio){
-        this.convenioRepository.save(convenio);
-    }
-
-    @Transactional
-    public void updateStatus(Long id, Convenio convenio){
+    public void desativar(Long id, Convenio convenio){
         if (id == convenio.getId()) {
-            this.convenioRepository.updateStatus(convenio.getId());
+            this.convenioRepository.desativar(convenio.getId());
         }
         else {
             throw new RuntimeException();

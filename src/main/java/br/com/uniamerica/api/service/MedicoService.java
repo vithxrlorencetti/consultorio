@@ -17,36 +17,36 @@ public class MedicoService {
     @Autowired
     private MedicoRepository medicoRepository;
 
-    public Optional<Medico> findById(Long id){
-        return this.medicoRepository.findById(id);
+    public Medico findById(Long id) {
+        return this.medicoRepository.findById(id).orElse(new Medico());
     }
 
-    public Page<Medico> listAll(Pageable pageable){
+    public Page<Medico> listAll(Pageable pageable) {
         return this.medicoRepository.findAll(pageable);
     }
 
     @Transactional
-    public void update(Long id, Medico medico){
-        if (id == medico.getId()) {
-            this.medicoRepository.save(medico);
-        }
-        else {
-            throw new RuntimeException();
-        }
-    }
-
-    @Transactional
-    public void insert(Medico medico){
+    public void insert(Medico medico) {
         this.medicoRepository.save(medico);
     }
 
     @Transactional
-    public void updateDataExcluido(Long id, Medico medico){
+    public void update(Long id, Medico medico) {
         if (id == medico.getId()) {
-            this.medicoRepository.updateStatus(medico.getId());
+            this.medicoRepository.save(medico);
         }
         else {
-            throw new RuntimeException();
+            throw new RuntimeException("Error: Não foi possivel editar a Secretaria, valores inconsistentes.");
+        }
+    }
+
+    @Transactional
+    public void desativar(Long id, Medico medico) {
+        if (id == medico.getId()) {
+            this.medicoRepository.desativar(medico.getId());
+        }
+        else {
+            throw new RuntimeException("Error: Não foi possivel editar a Secretaria, valores inconsistentes.");
         }
     }
 }

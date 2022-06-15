@@ -23,6 +23,10 @@ public abstract class AbstractEntity {
     @Column(name = "id")
     private Long id;
 
+    @Getter @Setter
+    @Column(name = "ativo", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean ativo;
+
     @Getter
     @Column(name = "cadastro", nullable = false)
     private LocalDateTime cadastro;

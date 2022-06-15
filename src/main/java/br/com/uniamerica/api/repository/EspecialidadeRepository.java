@@ -16,14 +16,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EspecialidadeRepository extends JpaRepository<Especialidade, Long> {
 
-    /**
-     *
-     * @param especialidade
-     */
     @Modifying
     @Query("UPDATE Especialidade especialidade " +
-            "SET especialidade.excluido = now() " +
+            "SET especialidade.ativo = false " +
             "WHERE especialidade.id = :especialidade")
-    public void updateStatus(@Param("especialidade") Long idEspecialidade);
+    public void desativar(@Param("especialidade") Long idEspecialidade);
 
 }
