@@ -20,5 +20,5 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
     @Query("UPDATE Paciente paciente " +
             "SET paciente.ativo = false " +
             "WHERE paciente.id = :paciente")
-    public void updateStatus(@Param("paciente") Long idPaciente);
+    public void desativar(@Param("paciente") Long idPaciente);
 }

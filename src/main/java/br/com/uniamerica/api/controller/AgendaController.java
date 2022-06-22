@@ -1,24 +1,14 @@
 package br.com.uniamerica.api.controller;
 
 import br.com.uniamerica.api.entity.Agenda;
-import br.com.uniamerica.api.repository.AgendaRepository;
 import br.com.uniamerica.api.service.AgendaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-/**
- * @author Eduardo Sganderla
- *
- * @since 1.0.0, 07/04/2022
- * @version 1.0.0
- */
 @Controller
 @RequestMapping("/api/agendas")
 public class AgendaController {
@@ -26,29 +16,18 @@ public class AgendaController {
     @Autowired
     private AgendaService agendaService;
 
-    /**
-     *
-     * @param idAgenda
-     * @return
-     */
     @GetMapping("/{idAgenda}")
-    public ResponseEntity<Agenda> findById(
-            @PathVariable("idAgenda") Long idAgenda
-    ){
+    public ResponseEntity<Agenda> findById(@PathVariable("idAgenda") Long idAgenda) {
         return ResponseEntity.ok().body(this.agendaService.findById(idAgenda));
     }
 
     @GetMapping
-    public ResponseEntity<Page<Agenda>> listByAllPage(
-            Pageable pageable
-    ){
+    public ResponseEntity<Page<Agenda>> listByAllPage(Pageable pageable) {
         return ResponseEntity.ok().body(this.agendaService.listAll(pageable));
     }
 
     @PostMapping
-    public ResponseEntity<?> insert(
-            @RequestBody Agenda agenda
-    ){
+    public ResponseEntity<?> insert(@RequestBody Agenda agenda) {
         try {
             this.agendaService.insert(agenda);
             return ResponseEntity.ok().body("Agenda Cadastrada com Sucesso.");
@@ -58,10 +37,7 @@ public class AgendaController {
     }
 
     @PutMapping("/{idAgenda}")
-    public ResponseEntity<?> update(
-            @PathVariable Long idAgenda,
-            @RequestBody Agenda agenda
-    ){
+    public ResponseEntity<?> update(@PathVariable Long idAgenda, @RequestBody Agenda agenda) {
         try {
             this.agendaService.update(idAgenda, agenda);
             return ResponseEntity.ok().body("Agenda Atualizada com Sucesso.");
@@ -71,10 +47,7 @@ public class AgendaController {
     }
 
     @PutMapping("/desativar/{idAgenda}")
-    public ResponseEntity<?> desativar(
-            @PathVariable Long idAgenda,
-            @RequestBody Agenda agenda
-    ){
+    public ResponseEntity<?> desativar(@PathVariable Long idAgenda, @RequestBody Agenda agenda) {
         try {
             this.agendaService.desativar(idAgenda, agenda);
             return ResponseEntity.ok().body("Agenda Desativada com Sucesso.");

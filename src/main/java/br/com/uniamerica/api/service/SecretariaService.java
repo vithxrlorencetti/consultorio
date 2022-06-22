@@ -18,8 +18,8 @@ public class SecretariaService {
     private SecretariaRepository secretariaRepository;
 
 
-    public Optional<Secretaria> findById(Long id){
-        return this.secretariaRepository.findById(id);
+    public Secretaria findById(Long id){
+        return this.secretariaRepository.findById(id).orElse(new Secretaria());
     }
 
 
@@ -42,9 +42,9 @@ public class SecretariaService {
     }
 
     @Transactional
-    public void updateStatus(Long id, Secretaria secretaria){
+    public void desativar(Long id, Secretaria secretaria){
         if (id == secretaria.getId()) {
-            this.secretariaRepository.updateStatus(secretaria.getId());
+            this.secretariaRepository.desativar(secretaria.getId());
         }
         else {
             throw new RuntimeException();

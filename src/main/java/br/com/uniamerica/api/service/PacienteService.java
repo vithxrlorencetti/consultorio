@@ -1,5 +1,6 @@
 package br.com.uniamerica.api.service;
 
+import br.com.uniamerica.api.entity.Medico;
 import br.com.uniamerica.api.entity.Paciente;
 import br.com.uniamerica.api.entity.Secretaria;
 import br.com.uniamerica.api.entity.TipoAtendimento;
@@ -19,8 +20,8 @@ public class PacienteService {
     @Autowired
     private PacienteRepository pacienteRepository;
 
-    public Optional<Paciente> findById(Long id){
-        return this.pacienteRepository.findById(id);
+    public Paciente findById(Long id){
+        return this.pacienteRepository.findById(id).orElse(new Paciente());
     }
 
     public Page<Paciente> listAll(Pageable pageable){
@@ -42,9 +43,9 @@ public class PacienteService {
     }
 
     @Transactional
-    public void updateStatus(Long id, Paciente paciente){
+    public void desativar(Long id, Paciente paciente){
         if (id == paciente.getId()) {
-            this.pacienteRepository.updateStatus(paciente.getId());
+            this.pacienteRepository.desativar(paciente.getId());
         }
         else {
             throw new RuntimeException();
